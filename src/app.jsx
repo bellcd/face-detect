@@ -11,10 +11,14 @@ class App extends React.Component {
     });
 
     this.state = {
-
+      boundingBox: {}
     }
 
     this.send = this.send.bind(this);
+  }
+
+  componentDidMount() {
+    this.send();
   }
 
   send() {
@@ -25,14 +29,21 @@ class App extends React.Component {
       })
       .then(response => {
         console.log('response: ', response);
+        this.setState({ boundingBox: response.outputs[0].data.regions[0]['region_info']['bounding_box']})
       })
       .catch(err => console.log(err));
   }
 
   render() {
-    this.send();
     return (
-      <div>The app renders.</div>
+      <>
+        <img src="https://i.ytimg.com/vi/F_fb0A2hu48/maxresdefault.jpg"
+          style={{position: 'relative'}}
+        ></img>
+        <div
+          style={{position: 'absolute', top: 0, left: 0, border: '1px solid red'}}
+        ></div>
+      </>
     );
   }
 }
