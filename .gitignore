@@ -7,3 +7,6 @@ jspm_packages/
 
 # dotenv environment variables file
 .env
+
+# api keys
+keys.js
