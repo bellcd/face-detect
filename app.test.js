@@ -23,7 +23,7 @@ describe('<App>', () => {
     expect(wrapper.find('img').exists()).toBe(true);
   });
 
-  it('boxPositions and regions are made empty arrays again after imgUrl is cleared after displaying boxes', () => {
+  it('boxPositions and regions are made empty arrays, and all <div class="bounding-box"> are removed when imgUrl changes after displaying boxes', () => {
     instance.setState({
       imgUrl: 'https://samples.clarifai.com/face-det.jpg',
       boxPositions: [
@@ -48,27 +48,14 @@ describe('<App>', () => {
         }
       ]
     });
-    wrapper.find('#image-url').simulate('change', { target: { value: '' }});
+    wrapper.find('#image-url').simulate('change', { target: { value: 'anything else' }});
 
     expect(instance.state.boxPositions).toBeInstanceOf(Array);
     expect(instance.state.boxPositions).toHaveLength(0);
 
     expect(instance.state.regions).toBeInstanceOf(Array);
     expect(instance.state.regions).toHaveLength(0);
-  });
 
-  it('No <div class="bounding-box"> exist when boxPositions is made an empty array again after displaying boxes', () => {
-    instance.setState({
-      boxPositions: [
-        {
-          leftStart: 106,
-          leftStop: 152,
-          topStart: 102,
-          topStop: 159
-        }
-      ]
-    });
-    wrapper.find('#image-url').simulate('change', { target: { value: '' }});
     expect(wrapper.find('.bounding-box')).toHaveLength(0);
   });
 

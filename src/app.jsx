@@ -24,15 +24,12 @@ class App extends React.Component {
     this.updateImgUrl = this.updateImgUrl.bind(this);
   }
 
-  // TODO: need to handle what happens when new text is entered after boxes from previous url are drawn ... WITHOUT clearing the field first ...
   updateImgUrl(e) {
     let result = {
-      imgUrl: e.target.value
+      imgUrl: e.target.value,
+      regions: [],
+      boxPositions: []
     };
-
-    if (e.target.value === '') {
-      result = Object.assign({}, result, { regions: [], boxPositions: [] });
-    }
 
     this.setState(result);
   }
