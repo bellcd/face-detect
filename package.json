@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack -w",
     "start": "nodemon ./server.js",
-    "test": "test"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -21,11 +21,15 @@
   },
   "devDependencies": {
     "@babel/core": "^7.7.4",
+    "@babel/preset-env": "^7.7.4",
     "@babel/preset-react": "^7.7.4",
+    "babel-jest": "^24.9.0",
     "babel-loader": "^8.0.6",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "jest": "^24.9.0",
     "nodemon": "^2.0.1",
+    "react-test-renderer": "^16.12.0",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10"
   }

@@ -1,6 +1,7 @@
 import React from 'react';
 import Clarifai from 'clarifai';
 import Keys from '../keys.js';
+import utils from '../utils.js';
 
 class App extends React.Component {
   constructor(props) {
@@ -12,70 +13,62 @@ class App extends React.Component {
 
     this.state = {
       boundingBox: {},
-      boxPositions: {}
+      boxPositions: {},
+      imgUrl: '',
+      imgWidth: 0,
+      imgHeight: 0,
+      hasNoFace: false
     }
 
-    this.send = this.send.bind(this);
-    this.calculateBox = this.calculateBox.bind(this);
+    this.findFace = this.findFace.bind(this);
+    this.updateImgUrl = this.updateImgUrl.bind(this);
   }
 
-  componentDidMount() {
-    this.send();
+  updateImgUrl(e) {
+    this.setState({ imgUrl: e.target.value });
   }
 
-  componentDidUpdate() {
-  }
-
-  send() {
+  findFace(e) {
+    e.preventDefault();
     this.app.models.initModel({id: Clarifai.FACE_DETECT_MODEL})
       .then(faceModel => {
-        console.log('faceModel: ', faceModel);
-        return faceModel.predict('https://i.ytimg.com/vi/F_fb0A2hu48/maxresdefault.jpg')
+        const url = this.state.imgUrl;
+        return faceModel.predict(`https://i.pinimg.com/originals/af/53/c9/af53c958168535bd1af01970f14d7697.jpg`);
       })
       .then(response => {
-        const boundingBox = response.outputs[0].data.regions[0]['region_info']['bounding_box'];
-        const boxPositions = this.calculateBox(boundingBox);
-        this.setState({ boundingBox, boxPositions });
-      })
-      .catch(err => console.log(err));
-  }
+        console.log('response: ', response);
+        const img = document.querySelector('img')
+        let hasNoFace = false;
+        let boundingBox = {};
 
-  calculateBox(boundingBox) {
-    const img = document.querySelector('img'); // TODO: improve getting the width of the image ...
+        if (Object.keys(response.outputs[0].data).length === 0) {
+          hasNoFace = true;
+        } else {
+          boundingBox = response.outputs[0].data.regions[0]['region_info']['bounding_box'];
+        }
 
-    const leftStart = boundingBox.left_col * img.width;
-    console.log('leftStart: ', leftStart);
-    // calculate left start from containing img
-
-    // calculate top start from containing img
-    const topStart = boundingBox.top_row * img.height;
-    console.log('topStart: ', topStart);
-      // same thing for left stop
-        // calculate width of bounding box as leftStop - leftStart
-        const leftStop = boundingBox.right_col * img.width;
-        console.log('leftStop: ', leftStop);
-      // same thing for top stop
-        // calculate height of bounding box as topStop - topStart
-        const topStop = boundingBox.bottom_row * img.height;
-        console.log('topStop: ', topStop);
-
-    return {
-      leftStart,
-      leftStop,
-      topStart,
-      topStop
-    }
+        const boxPositions = utils.calculateBox(boundingBox, img.width, img.height);
+        this.setState({ boundingBox, boxPositions, imgWidth: img.width, imgHeight: img.height, hasNoFace });
+        })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
   render() {
     return (
       <>
-        <img src="https://i.ytimg.com/vi/F_fb0A2hu48/maxresdefault.jpg"
-          style={{position: 'relative'}}
-        ></img>
         <div
           style={{position: 'absolute', top: this.state.boxPositions.topStart, left: this.state.boxPositions.leftStart, border: '1px solid red', width: this.state.boxPositions.leftStop - this.state.boxPositions.leftStart, height: this.state.boxPositions.topStop - this.state.boxPositions.topStart }}
         ></div>
+        <form>
+          <input type="text" onChange={this.updateImgUrl} value={this.state.imgUrl}></input>
+          <button type="submit" onClick={this.findFace}>Find the face</button>
+        </form>
+        {this.state.hasNoFace ? <div>No Face Detected!</div> : null}
+        <img src={this.state.imgUrl}
+          style={{position: 'relative'}}
+        ></img>
       </>
     );
   }
