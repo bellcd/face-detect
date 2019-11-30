@@ -24,8 +24,17 @@ class App extends React.Component {
     this.updateImgUrl = this.updateImgUrl.bind(this);
   }
 
+  // TODO: need to handle what happens when new text is entered after boxes from previous url are drawn ... WITHOUT clearing the field first ...
   updateImgUrl(e) {
-    this.setState({ imgUrl: e.target.value });
+    let result = {
+      imgUrl: e.target.value
+    };
+
+    if (e.target.value === '') {
+      result = Object.assign({}, result, { regions: [], boxPositions: [] });
+    }
+
+    this.setState(result);
   }
 
   findFace(e) {
@@ -71,7 +80,7 @@ class App extends React.Component {
       <h1>Faces Detect</h1>
       <section>
         <form>
-          <input type="text" onChange={this.updateImgUrl} value={this.state.imgUrl}></input>
+          <input id="image-url" type="text" onChange={this.updateImgUrl} value={this.state.imgUrl} placeholder="URL to an image"></input>
           <button type="submit" onClick={this.findFace}>Find the face</button>
         </form>
         <div id="active-image">

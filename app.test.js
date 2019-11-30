@@ -4,6 +4,7 @@ import { shallow } from 'enzyme';
 
 const multipleFacesUrl = `https://samples.clarifai.com/face-det.jpg`;
 
+// TODO: reorganize how to share state between tests??
 describe('<App>', () => {
   let wrapper = shallow(<App></App>)
   let instance = wrapper.instance();
@@ -22,6 +23,55 @@ describe('<App>', () => {
     expect(wrapper.find('img').exists()).toBe(true);
   });
 
+  it('boxPositions and regions are made empty arrays again after imgUrl is cleared after displaying boxes', () => {
+    instance.setState({
+      imgUrl: 'https://samples.clarifai.com/face-det.jpg',
+      boxPositions: [
+        {
+          leftStart: 106,
+          leftStop: 152,
+          topStart: 102,
+          topStop: 159
+        }
+      ],
+      regions: [
+        {
+          id: "b0n6gx2wo509",
+          region_info: {
+            bounding_box: {
+              bottom_row: 0.6547073,
+              left_col: 0.26655892,
+              right_col: 0.824851,
+              top_row: 0.16958831
+            }
+          }
+        }
+      ]
+    });
+    wrapper.find('#image-url').simulate('change', { target: { value: '' }});
+
+    expect(instance.state.boxPositions).toBeInstanceOf(Array);
+    expect(instance.state.boxPositions).toHaveLength(0);
+
+    expect(instance.state.regions).toBeInstanceOf(Array);
+    expect(instance.state.regions).toHaveLength(0);
+  });
+
+  it('No <div class="bounding-box"> exist when boxPositions is made an empty array again after displaying boxes', () => {
+    instance.setState({
+      boxPositions: [
+        {
+          leftStart: 106,
+          leftStop: 152,
+          topStart: 102,
+          topStop: 159
+        }
+      ]
+    });
+    wrapper.find('#image-url').simulate('change', { target: { value: '' }});
+    expect(wrapper.find('.bounding-box')).toHaveLength(0);
+  });
+
   it('no-face-message is initially hidden', () => {
     expect(wrapper.find('.no-face-message').exists()).toBe(false);
   });
@@ -31,7 +81,7 @@ describe('<App>', () => {
     expect(wrapper.find('.no-face-message').exists()).toBe(true);
   });
 
-  it('Several <div class="bounding-box"> are created when this.state.boxPositions has several objects', () => {
+  it('Several <div class="bounding-box"> are created when boxPositions has several objects', () => {
     instance.setState({ boxPositions: [
       {
         leftStart: 106,
