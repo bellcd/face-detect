@@ -3,6 +3,9 @@ import Clarifai from 'clarifai';
 import Keys from '../keys.js';
 import utils from '../utils.js';
 
+// TODO: implement bounding boxes around multiple faces ...
+const multipleFacesUrl = `https://samples.clarifai.com/face-det.jpg`;
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -32,8 +35,7 @@ class App extends React.Component {
     e.preventDefault();
     this.app.models.initModel({id: Clarifai.FACE_DETECT_MODEL})
       .then(faceModel => {
-        const url = this.state.imgUrl;
-        return faceModel.predict(`https://i.pinimg.com/originals/af/53/c9/af53c958168535bd1af01970f14d7697.jpg`);
+        return faceModel.predict(this.state.imgUrl);
       })
       .then(response => {
         console.log('response: ', response);
@@ -41,7 +43,7 @@ class App extends React.Component {
         let hasNoFace = false;
         let boundingBox = {};
 
-        if (Object.keys(response.outputs[0].data).length === 0) {
+        if (response.outputs[0].data.regions.length === 0) {
           hasNoFace = true;
         } else {
           boundingBox = response.outputs[0].data.regions[0]['region_info']['bounding_box'];
@@ -59,7 +61,7 @@ class App extends React.Component {
     return (
       <>
         <div
-          style={{position: 'absolute', top: this.state.boxPositions.topStart, left: this.state.boxPositions.leftStart, border: '1px solid red', width: this.state.boxPositions.leftStop - this.state.boxPositions.leftStart, height: this.state.boxPositions.topStop - this.state.boxPositions.topStart }}
+          style={{position: 'absolute', top: this.state.boxPositions.topStart, left: this.state.boxPositions.leftStart, border: '1px solid red', width: this.state.boxPositions.leftStop - this.state.boxPositions.leftStart, height: this.state.boxPositions.topStop - this.state.boxPositions.topStart, zIndex: 1 }}
         ></div>
         <form>
           <input type="text" onChange={this.updateImgUrl} value={this.state.imgUrl}></input>
