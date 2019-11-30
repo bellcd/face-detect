@@ -91,4 +91,6 @@ describe('<App>', () => {
     ]});
     expect(wrapper.find('.bounding-box')).toHaveLength(3);
   });
+
+  // TODO: add tests for input validation??
 });

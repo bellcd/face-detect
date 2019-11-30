@@ -24,9 +24,11 @@ class App extends React.Component {
 
     this.findFace = this.findFace.bind(this);
     this.updateImgUrl = this.updateImgUrl.bind(this);
+    this.validateInputField = this.validateInputField.bind(this);
   }
 
-  updateImgUrl(e) {
+  // TODO: move this to utils??
+  validateInputField() {
     const input = this.urlInputField.current;
     const validity = input.validity;
     if (validity.badInput || validity.patternMismatch || validity.typeMismatch || validity.valueMissing) {
@@ -34,8 +36,12 @@ class App extends React.Component {
     } else {
       input.setCustomValidity(``);
     }
+  }
 
-    input.reportValidity();
+  // TODO: how to handle only displaying the image if the url is valid??
+  updateImgUrl(e) {
+    this.validateInputField();
+    this.urlInputField.current.reportValidity();
 
     let result = {
       imgUrl: e.target.value,
@@ -48,31 +54,34 @@ class App extends React.Component {
 
   findFace(e) {
     e.preventDefault();
-    this.app.models.initModel({id: Clarifai.FACE_DETECT_MODEL})
-      .then(faceModel => {
-        return faceModel.predict(this.state.imgUrl);
-      })
-      .then(response => {
-        console.log('response: ', response);
-        const img = document.querySelector('img')
-        let hasNoFace = false;
-        let regions = [];
-        let boxPositions = [];
-
-        if (response.outputs[0].data.regions.length === 0) {
-          hasNoFace = true;
-        } else {
-          regions = response.outputs[0].data.regions;
-        }
-
-        boxPositions = regions.map(region => {
-          return utils.calculateBox(region['region_info']['bounding_box'], img.width, img.height);
-        });
-        this.setState({ regions, boxPositions, imgWidth: img.width, imgHeight: img.height, hasNoFace });
+    this.validateInputField();
+    if (this.urlInputField.current.reportValidity()) {
+      this.app.models.initModel({id: Clarifai.FACE_DETECT_MODEL})
+        .then(faceModel => {
+          return faceModel.predict(this.state.imgUrl);
         })
-      .catch(err => {
-        console.log(err); // TODO: better error message to end user ...
-      });
+        .then(response => {
+          console.log('response: ', response);
+          const img = document.querySelector('img')
+          let hasNoFace = false;
+          let regions = [];
+          let boxPositions = [];
+
+          if (response.outputs[0].data.regions.length === 0) {
+            hasNoFace = true;
+          } else {
+            regions = response.outputs[0].data.regions;
+          }
+
+          boxPositions = regions.map(region => {
+            return utils.calculateBox(region['region_info']['bounding_box'], img.width, img.height);
+          });
+          this.setState({ regions, boxPositions, imgWidth: img.width, imgHeight: img.height, hasNoFace });
+          })
+        .catch(err => {
+          console.log(err); // TODO: better error message to end user ...
+        });
+    }
   }
 
   render() {
