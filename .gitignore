@@ -10,3 +10,6 @@ jspm_packages/
 
 # api keys
 keys.js
+
+# coverage
+coverage/
