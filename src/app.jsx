@@ -60,14 +60,16 @@ class App extends React.Component {
   render() {
     return (
       <>
-        <div
+      <div className="bounding-boxes">
+        <div className="bounding-box"
           style={{position: 'absolute', top: this.state.boxPositions.topStart, left: this.state.boxPositions.leftStart, border: '1px solid red', width: this.state.boxPositions.leftStop - this.state.boxPositions.leftStart, height: this.state.boxPositions.topStop - this.state.boxPositions.topStart, zIndex: 1 }}
         ></div>
+      </div>
         <form>
           <input type="text" onChange={this.updateImgUrl} value={this.state.imgUrl}></input>
           <button type="submit" onClick={this.findFace}>Find the face</button>
         </form>
-        {this.state.hasNoFace ? <div>No Face Detected!</div> : null}
+        {this.state.hasNoFace ? <div className="no-face-message">No Face Detected!</div> : null}
         <img src={this.state.imgUrl}
           style={{position: 'relative'}}
         ></img>
