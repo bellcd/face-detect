@@ -11,6 +11,8 @@ class App extends React.Component {
       apiKey: Keys.clarifai
     });
 
+    this.urlInputField = React.createRef();
+
     this.state = {
       regions: [],
       boxPositions: [],
@@ -25,6 +27,16 @@ class App extends React.Component {
   }
 
   updateImgUrl(e) {
+    const input = this.urlInputField.current;
+    const validity = input.validity;
+    if (validity.badInput || validity.patternMismatch || validity.typeMismatch || validity.valueMissing) {
+      input.setCustomValidity(`URL must start with https:// or http://`);
+    } else {
+      input.setCustomValidity(``);
+    }
+
+    input.reportValidity();
+
     let result = {
       imgUrl: e.target.value,
       regions: [],
@@ -77,7 +89,7 @@ class App extends React.Component {
       <h1>Faces Detect</h1>
       <section>
         <form>
-          <input id="image-url" type="text" onChange={this.updateImgUrl} value={this.state.imgUrl} placeholder="URL to an image"></input>
+          <input id="image-url" type="url" pattern="https://.*|http://.*" required onChange={this.updateImgUrl} value={this.state.imgUrl} placeholder="URL to an image" ref={this.urlInputField}></input>
           <button type="submit" onClick={this.findFace}>Find the face</button>
         </form>
         <div id="active-image">
