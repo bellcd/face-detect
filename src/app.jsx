@@ -3,9 +3,6 @@ import Clarifai from 'clarifai';
 import Keys from '../keys.js';
 import utils from './utils.js';
 
-// TODO: implement bounding boxes around multiple faces ...
-const multipleFacesUrl = `https://samples.clarifai.com/face-det.jpg`;
-
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -63,23 +60,29 @@ class App extends React.Component {
   render() {
     // TODO: move styling into separate stylesheet??
     // TODO: separate component ??
-    const boundingBoxes = this.state.boxPositions.map((positions, i) => { // TODO: change this index to use an identifier from the Clarifai api call??
+    const boundingBoxes = this.state.boxPositions.map((p, i) => { // TODO: change this index to use an identifier from the Clarifai api call??
       return <div key={i} className="bounding-box"
-        style={{position: 'absolute', top: positions.topStart, left: positions.leftStart, border: '1px solid red', width: positions.leftStop - positions.leftStart, height: positions.topStop - positions.topStart, zIndex: 1 }}
+        style={{ top: p.topStart, left: p.leftStart, width: p.leftStop - p.leftStart, height: p.topStop - p.topStart }}
       ></div>
     });
 
     return (
       <>
-      <div className="bounding-boxes">
-        {boundingBoxes}
-      </div>
+      <h1>Faces Detect</h1>
+      <section>
         <form>
           <input type="text" onChange={this.updateImgUrl} value={this.state.imgUrl}></input>
           <button type="submit" onClick={this.findFace}>Find the face</button>
         </form>
-        {this.state.hasNoFace ? <div className="no-face-message">No Face Detected!</div> : null}
-        {this.state.imgUrl ? <img src={this.state.imgUrl} style={{position: 'relative'}}></img> : null}
+        <div id="active-image">
+          {this.state.hasNoFace ? <div className="no-face-message">No Face Detected!</div> : null}
+          {this.state.imgUrl ? <img src={this.state.imgUrl}></img> : null}
+          <div className="bounding-boxes">
+            {boundingBoxes}
+          </div>
+        </div>
+      </section>
+      <footer>Made with ❤️ by Christian Dibala Bell</footer>
       </>
     );
   }

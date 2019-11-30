@@ -1,0 +1,27 @@
+h1 {
+  text-align: center;
+}
+
+section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#active-image {
+  position: relative;
+}
+
+/* TODO: does this work on mobile ?? */
+footer {
+  position: absolute;
+  bottom: 0;
+  padding: 10px;
+}
+
+.bounding-box {
+  position: absolute;
+  border: 1px dashed red;
+  z-index: 1
+}

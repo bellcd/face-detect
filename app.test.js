@@ -2,6 +2,7 @@ import React from 'react';
 import App from './src/app.jsx';
 import { shallow } from 'enzyme';
 
+const multipleFacesUrl = `https://samples.clarifai.com/face-det.jpg`;
 
 describe('<App>', () => {
   let wrapper = shallow(<App></App>)
