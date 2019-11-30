@@ -53,7 +53,7 @@ class App extends React.Component {
         this.setState({ boundingBox, boxPositions, imgWidth: img.width, imgHeight: img.height, hasNoFace });
         })
       .catch(err => {
-        console.log(err);
+        console.log(err); // TODO: better error message to end user ...
       });
   }
 
@@ -70,9 +70,7 @@ class App extends React.Component {
           <button type="submit" onClick={this.findFace}>Find the face</button>
         </form>
         {this.state.hasNoFace ? <div className="no-face-message">No Face Detected!</div> : null}
-        <img src={this.state.imgUrl}
-          style={{position: 'relative'}}
-        ></img>
+        {this.state.imgUrl ? <img src={this.state.imgUrl} style={{position: 'relative'}}></img> : null}
       </>
     );
   }
