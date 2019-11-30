@@ -15,8 +15,8 @@ class App extends React.Component {
     });
 
     this.state = {
-      boundingBox: {},
-      boxPositions: {},
+      regions: [],
+      boxPositions: [],
       imgUrl: '',
       imgWidth: 0,
       imgHeight: 0,
@@ -41,16 +41,19 @@ class App extends React.Component {
         console.log('response: ', response);
         const img = document.querySelector('img')
         let hasNoFace = false;
-        let boundingBox = {};
+        let regions = [];
+        let boxPositions = [];
 
         if (response.outputs[0].data.regions.length === 0) {
           hasNoFace = true;
         } else {
-          boundingBox = response.outputs[0].data.regions[0]['region_info']['bounding_box'];
+          regions = response.outputs[0].data.regions;
         }
 
-        const boxPositions = utils.calculateBox(boundingBox, img.width, img.height);
-        this.setState({ boundingBox, boxPositions, imgWidth: img.width, imgHeight: img.height, hasNoFace });
+        boxPositions = regions.map(region => {
+          return utils.calculateBox(region['region_info']['bounding_box'], img.width, img.height);
+        });
+        this.setState({ regions, boxPositions, imgWidth: img.width, imgHeight: img.height, hasNoFace });
         })
       .catch(err => {
         console.log(err); // TODO: better error message to end user ...
@@ -58,12 +61,18 @@ class App extends React.Component {
   }
 
   render() {
+    // TODO: move styling into separate stylesheet??
+    // TODO: separate component ??
+    const boundingBoxes = this.state.boxPositions.map((positions, i) => { // TODO: change this index to use an identifier from the Clarifai api call??
+      return <div key={i} className="bounding-box"
+        style={{position: 'absolute', top: positions.topStart, left: positions.leftStart, border: '1px solid red', width: positions.leftStop - positions.leftStart, height: positions.topStop - positions.topStart, zIndex: 1 }}
+      ></div>
+    });
+
     return (
       <>
       <div className="bounding-boxes">
-        <div className="bounding-box"
-          style={{position: 'absolute', top: this.state.boxPositions.topStart, left: this.state.boxPositions.leftStart, border: '1px solid red', width: this.state.boxPositions.leftStop - this.state.boxPositions.leftStart, height: this.state.boxPositions.topStop - this.state.boxPositions.topStart, zIndex: 1 }}
-        ></div>
+        {boundingBoxes}
       </div>
         <form>
           <input type="text" onChange={this.updateImgUrl} value={this.state.imgUrl}></input>
