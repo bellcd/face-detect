@@ -1,7 +1,7 @@
-const App = require('./src/app.jsx');
+const utils = require('./src/utils.js');
 
 describe('calculateBox()', () => {
   it('Calculates the corner positions of a box', () => {
-    expect(App.calculateBox()).toBe('function');
+    expect(utils.calculateBox())
   });
 });

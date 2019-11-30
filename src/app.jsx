@@ -1,7 +1,7 @@
 import React from 'react';
 import Clarifai from 'clarifai';
 import Keys from '../keys.js';
-import utils from '../utils.js';
+import utils from './utils.js';
 
 // TODO: implement bounding boxes around multiple faces ...
 const multipleFacesUrl = `https://samples.clarifai.com/face-det.jpg`;
