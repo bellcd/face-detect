@@ -1,5 +1,21 @@
+body {
+  margin: 0;
+  color: white;
+}
+
+#root {
+  height: 100vh;
+  background-image: linear-gradient(hsla(4, 90%, 58%, 0.5), hsla(207, 90%, 54%, 0.5)), url(https://images.unsplash.com/photo-1470803375016-4d4612890a7d);
+  background-origin: border-box;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
 h1 {
   text-align: center;
+  margin: 0;
+  padding: 10px;
 }
 
 section {
@@ -22,10 +38,10 @@ footer {
 
 .bounding-box {
   position: absolute;
-  border: 1px dashed red;
+  border: 2px dashed red;
   z-index: 1
 }
 
 input:invalid {
-  border: 1px solid red;
+  border: 3px solid red;
 }

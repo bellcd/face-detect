@@ -99,7 +99,7 @@ class App extends React.Component {
       <section>
         <form>
           <input id="image-url" type="url" pattern="https://.*|http://.*" required onChange={this.updateImgUrl} value={this.state.imgUrl} placeholder="URL to an image" ref={this.urlInputField}></input>
-          <button type="submit" onClick={this.findFace}>Find the face</button>
+          <button type="submit" onClick={this.findFace}>Find the face(s)</button>
         </form>
         <div id="active-image">
           {this.state.hasNoFace ? <div className="no-face-message">No Face Detected!</div> : null}
