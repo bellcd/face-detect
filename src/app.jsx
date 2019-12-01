@@ -1,6 +1,6 @@
 import React from 'react';
 // import Clarifai from 'clarifai';
-import Keys from '../keys.js';
+// import Keys from '../keys.js';
 // import utils from './utils.js';
 
 class App extends React.Component {
@@ -56,15 +56,22 @@ class App extends React.Component {
       // JSON object with imgUrl, imgWidth, imgHeight
       const body = {
         imgUrl: this.state.imgUrl,
-        imgWidth: 100,
+        imgWidth: 100, // TODO: need to get these values from the width and height of the actual image ...
         imgHeight: 200
       };
 
       // api call to backend
-      const response = await fetch(`${this.state.url}/image`, { method: 'POST', body: JSON.stringify(body) })
-      console.log('response: ', response);
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      };
+      const response = await fetch(`${this.state.url}/image`, options)
+      const parsedResponse = await response.json(); // TODO: why is it necessary to await both on the fetch() call and on the .json() call??
       // setState() with results
-      this.setState(response);
+      this.setState(parsedResponse);
     }
   }
 
