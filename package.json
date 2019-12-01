@@ -4,7 +4,8 @@
   "description": "Face detection app using the Clarifai API",
   "main": "index.js",
   "scripts": {
-    "build": "webpack -w",
+    "build": "webpack",
+    "build:watch": "webpack -w",
     "start": "nodemon ./server.js",
     "test": "jest",
     "test:watch": "jest --watch",
