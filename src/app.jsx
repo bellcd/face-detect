@@ -1,7 +1,4 @@
 import React from 'react';
-// import Clarifai from 'clarifai';
-// import Keys from '../keys.js';
-// import utils from './utils.js';
 
 class App extends React.Component {
   constructor(props) {
@@ -56,8 +53,8 @@ class App extends React.Component {
       // JSON object with imgUrl, imgWidth, imgHeight
       const body = {
         imgUrl: this.state.imgUrl,
-        imgWidth: 100, // TODO: need to get these values from the width and height of the actual image ...
-        imgHeight: 200
+        imgWidth: document.querySelector('img').width, // TODO: better way to handle getting these values ...
+        imgHeight: document.querySelector('img').height
       };
 
       // api call to backend
@@ -76,7 +73,6 @@ class App extends React.Component {
   }
 
   render() {
-    // TODO: move styling into separate stylesheet??
     // TODO: separate component ??
     const boundingBoxes = this.state.boxPositions.map((p, i) => { // TODO: change this index to use an identifier from the Clarifai api call??
       return <div key={i} className="bounding-box"
