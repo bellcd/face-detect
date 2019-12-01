@@ -1,15 +1,11 @@
 import React from 'react';
-import Clarifai from 'clarifai';
+// import Clarifai from 'clarifai';
 import Keys from '../keys.js';
-import utils from './utils.js';
+// import utils from './utils.js';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-
-    this.app = new Clarifai.App({
-      apiKey: Keys.clarifai
-    });
 
     this.urlInputField = React.createRef();
 
@@ -19,7 +15,8 @@ class App extends React.Component {
       imgUrl: '',
       imgWidth: 0,
       imgHeight: 0,
-      hasNoFace: false
+      hasNoFace: false,
+      url: `https://face-detect-api-bellcd.herokuapp.com`
     }
 
     this.findFace = this.findFace.bind(this);
@@ -52,35 +49,22 @@ class App extends React.Component {
     this.setState(result);
   }
 
-  findFace(e) {
+  async findFace(e) {
     e.preventDefault();
     this.validateInputField();
     if (this.urlInputField.current.reportValidity()) {
-      this.app.models.initModel({id: Clarifai.FACE_DETECT_MODEL})
-        .then(faceModel => {
-          return faceModel.predict(this.state.imgUrl);
-        })
-        .then(response => {
-          console.log('response: ', response);
-          const img = document.querySelector('img')
-          let hasNoFace = false;
-          let regions = [];
-          let boxPositions = [];
+      // JSON object with imgUrl, imgWidth, imgHeight
+      const body = {
+        imgUrl: this.state.imgUrl,
+        imgWidth: 100,
+        imgHeight: 200
+      };
 
-          if (response.outputs[0].data.regions.length === 0) {
-            hasNoFace = true;
-          } else {
-            regions = response.outputs[0].data.regions;
-          }
-
-          boxPositions = regions.map(region => {
-            return utils.calculateBox(region['region_info']['bounding_box'], img.width, img.height);
-          });
-          this.setState({ regions, boxPositions, imgWidth: img.width, imgHeight: img.height, hasNoFace });
-          })
-        .catch(err => {
-          console.log(err); // TODO: better error message to end user ...
-        });
+      // api call to backend
+      const response = await fetch(`${this.state.url}/image`, { method: 'POST', body: JSON.stringify(body) })
+      console.log('response: ', response);
+      // setState() with results
+      this.setState(response);
     }
   }
 
