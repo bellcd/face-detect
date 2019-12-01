@@ -1,6 +1,11 @@
+/* GENERAL */
 body {
   margin: 0;
   color: white;
+}
+
+body, input, button {
+  font-family: 'Trocchi', serif;
 }
 
 #root {
@@ -16,6 +21,7 @@ h1 {
   text-align: center;
   margin: 0;
   padding: 10px;
+  letter-spacing: 5px;
 }
 
 section {
@@ -25,10 +31,12 @@ section {
   align-items: center;
 }
 
+/* IMAGE */
 #active-image-container {
   position: relative;
   margin: 0 auto;
-  max-width: 60%;
+  margin-top: 1rem;
+  max-width: 50%;
   max-height: 100vh;
 }
 
@@ -37,23 +45,41 @@ section {
   height: 100%;
 }
 
-/* TODO: does this work on mobile ?? */
-footer {
-  position: absolute;
-  bottom: 0;
-  padding: 10px;
-}
-
 .bounding-box {
   position: absolute;
   border: 2px dashed red;
   z-index: 1
 }
 
+/* INPUT FORM */
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+input {
+  padding: 0.1rem;
+}
+
 input:invalid {
   border: 3px solid red;
 }
 
-img {
-
+button {
+  padding: 0.3rem;
+  width: 10rem;
 }
+
+/* FOOTER */
+/* TODO: does this work correctly on mobile ?? */
+footer {
+  position: absolute;
+  bottom: 0;
+  padding: 10px;
+  letter-spacing: 2px;
+}
+
+a:visited {
+  color: white;
+}
+

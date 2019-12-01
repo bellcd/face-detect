@@ -109,7 +109,7 @@ class App extends React.Component {
           </div>
         </div>
       </section>
-      <footer>Made with ❤️ by Christian Dibala Bell</footer>
+      <footer>Made with ❤️ by <a href="https://bellcd.github.io/">Christian Dibala Bell</a></footer>
       </>
     );
   }
