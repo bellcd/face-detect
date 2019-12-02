@@ -20,6 +20,7 @@ class App extends React.Component {
     this.findFace = this.findFace.bind(this);
     this.updateImgUrl = this.updateImgUrl.bind(this);
     this.validateInputField = this.validateInputField.bind(this);
+    this.updateUseRandomFace = this.updateUseRandomFace.bind(this);
   }
 
   // TODO: move this to utils??
@@ -44,6 +45,15 @@ class App extends React.Component {
       boxPositions: [],
       error: null
     };
+
+    this.setState(result);
+  }
+
+  updateUseRandomFace(e) {
+    let result = { useRandomFace: e.target.checked };
+    if (e.target.checked) {
+      result = Object.assign({}, result, { imgUrl: 'https://source.unsplash.com/random?face'});
+    }
 
     this.setState(result);
   }
@@ -103,14 +113,18 @@ class App extends React.Component {
       <section>
         <form>
           <input id="image-url" type="url" pattern="https://.*|http://.*" required onChange={this.updateImgUrl} value={this.state.imgUrl} placeholder="URL to an image" ref={this.urlInputField}></input>
+          <div>
+            <input id="random-image-checkbox" type="checkbox" onChange={this.updateUseRandomFace} value={this.state.useRandomFace}></input>
+            <label htmlFor="random-image-checkbox">Random Face</label>
+          </div>
           <button type="submit" onClick={this.findFace}>Find the face(s)</button>
         </form>
         <div className="error-message-container">
           {this.state.error ? <p>There was an error. Please try a different image url.</p> : null}
         </div>
-        <div id="active-image-container">
+        <div id="image-container">
           {this.state.hasNoFace ? <div className="no-face-message">No Face Detected!</div> : null}
-          {this.state.imgUrl ? <img id="active-image" src={this.state.imgUrl}></img> : null}
+          {this.state.imgUrl ? <img id="image" src={this.state.imgUrl}></img> : null}
           <div className="bounding-boxes">
             {boundingBoxes}
           </div>

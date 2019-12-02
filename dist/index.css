@@ -32,7 +32,7 @@ section {
 }
 
 /* IMAGE */
-#active-image-container {
+#image-container {
   position: relative;
   margin: 0 auto;
   margin-top: 1rem;
@@ -40,9 +40,14 @@ section {
   max-height: 100vh;
 }
 
-#active-image {
+#image {
   width: 100%;
   height: 100%;
+  display: none;
+}
+
+.active-image {
+  display: inline;
 }
 
 .bounding-box {
