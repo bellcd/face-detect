@@ -13,6 +13,7 @@ class App extends React.Component {
       imgWidth: 0,
       imgHeight: 0,
       hasNoFace: false,
+      displayImg: 'none',
       url: `https://face-detect-api-bellcd.herokuapp.com`,
       error: null
     }
@@ -43,7 +44,8 @@ class App extends React.Component {
       imgUrl: e.target.value,
       regions: [],
       boxPositions: [],
-      error: null
+      error: null,
+      displayImg: 'none'
     };
 
     this.setState(result);
@@ -52,7 +54,7 @@ class App extends React.Component {
   updateUseRandomFace(e) {
     let result = { useRandomFace: e.target.checked };
     if (e.target.checked) {
-      result = Object.assign({}, result, { imgUrl: 'https://source.unsplash.com/random?face'});
+      result = Object.assign({}, result, { imgUrl: 'https://source.unsplash.com/random?face', displayImg: 'none' });
     }
 
     this.setState(result);
@@ -83,7 +85,8 @@ class App extends React.Component {
         if (json.name === 'Error') { // TODO: handle this better ...
           this.setState({ error: json });
         } else {
-          this.setState(json);
+          const result = Object.assign({}, json, { displayImg: 'inline' });
+          this.setState(result);
         }
       })
       .catch(error => {
@@ -124,7 +127,7 @@ class App extends React.Component {
         </div>
         <div id="image-container">
           {this.state.hasNoFace ? <div className="no-face-message">No Face Detected!</div> : null}
-          {this.state.imgUrl ? <img id="image" src={this.state.imgUrl}></img> : null}
+          {this.state.imgUrl ? <img id="image" style={{ display: this.state.displayImg }} src={this.state.imgUrl}></img> : null}
           <div className="bounding-boxes">
             {boundingBoxes}
           </div>
