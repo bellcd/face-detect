@@ -46,29 +46,35 @@ class App extends React.Component {
     this.setState(result);
   }
 
-  async findFace(e) {
+  // TODO: change this to use async / await ... need to handle regeneratorRuntime is not defined error
+  postFaceUrl() {
+    // JSON object with imgUrl, imgWidth, imgHeight
+    const body = {
+      imgUrl: this.state.imgUrl,
+      imgWidth: document.querySelector('img').width, // TODO: better way to handle getting these values ...
+      imgHeight: document.querySelector('img').height
+    };
+
+    // api call to backend
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    };
+    fetch(`${this.state.url}/image`, options)
+      .then(res => res.json())
+      // setState() with results
+      .then(json => this.setState(json))
+      .catch(err => { throw err; });
+  }
+
+  findFace(e) {
     e.preventDefault();
     this.validateInputField();
     if (this.urlInputField.current.reportValidity()) {
-      // JSON object with imgUrl, imgWidth, imgHeight
-      const body = {
-        imgUrl: this.state.imgUrl,
-        imgWidth: document.querySelector('img').width, // TODO: better way to handle getting these values ...
-        imgHeight: document.querySelector('img').height
-      };
-
-      // api call to backend
-      const options = {
-        method: 'POST',
-        headers: {
-          'Content-type': 'application/json'
-        },
-        body: JSON.stringify(body)
-      };
-      const response = await fetch(`${this.state.url}/image`, options)
-      const parsedResponse = await response.json(); // TODO: why is it necessary to await both on the fetch() call and on the .json() call??
-      // setState() with results
-      this.setState(parsedResponse);
+      this.postFaceUrl();
     }
   }
 
