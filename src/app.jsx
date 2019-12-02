@@ -13,7 +13,7 @@ class App extends React.Component {
       imgWidth: 0,
       imgHeight: 0,
       hasNoFace: false,
-      displayImg: 'none',
+      visibility: 'hidden',
       url: `https://face-detect-api-bellcd.herokuapp.com`,
       error: null
     }
@@ -45,16 +45,24 @@ class App extends React.Component {
       regions: [],
       boxPositions: [],
       error: null,
-      displayImg: 'none'
+      visibility: 'hidden'
     };
 
     this.setState(result);
   }
 
   updateUseRandomFace(e) {
-    let result = { useRandomFace: e.target.checked };
+    // TODO: a bit WET, combine with the function above ??
+    let result = {
+      useRandomFace: e.target.checked,
+      regions: [],
+      boxPositions: [],
+      error: null,
+      visibility: 'hidden'
+    };
+
     if (e.target.checked) {
-      result = Object.assign({}, result, { imgUrl: 'https://source.unsplash.com/random?face', displayImg: 'none' });
+      result = Object.assign({}, result, { imgUrl: 'https://source.unsplash.com/random?face' });
     }
 
     this.setState(result);
@@ -65,8 +73,8 @@ class App extends React.Component {
     // JSON object with imgUrl, imgWidth, imgHeight
     const body = {
       imgUrl: this.state.imgUrl,
-      imgWidth: document.querySelector('img').width, // TODO: better way to handle getting these values ...
-      imgHeight: document.querySelector('img').height
+      imgWidth: document.querySelector('img').clientWidth, // TODO: better way to handle getting these values ...
+      imgHeight: document.querySelector('img').clientHeight
     };
 
     // api call to backend
@@ -85,7 +93,7 @@ class App extends React.Component {
         if (json.name === 'Error') { // TODO: handle this better ...
           this.setState({ error: json });
         } else {
-          const result = Object.assign({}, json, { displayImg: 'inline' });
+          const result = Object.assign({}, json, { visibility: 'visible' });
           this.setState(result);
         }
       })
@@ -127,7 +135,7 @@ class App extends React.Component {
         </div>
         <div id="image-container">
           {this.state.hasNoFace ? <div className="no-face-message">No Face Detected!</div> : null}
-          {this.state.imgUrl ? <img id="image" style={{ display: this.state.displayImg }} src={this.state.imgUrl}></img> : null}
+          {this.state.imgUrl ? <img id="image" style={{ visibility: this.state.visibility }} src={this.state.imgUrl}></img> : null}
           <div className="bounding-boxes">
             {boundingBoxes}
           </div>
