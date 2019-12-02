@@ -13,7 +13,8 @@ class App extends React.Component {
       imgWidth: 0,
       imgHeight: 0,
       hasNoFace: false,
-      url: `https://face-detect-api-bellcd.herokuapp.com`
+      url: `https://face-detect-api-bellcd.herokuapp.com`,
+      error: null
     }
 
     this.findFace = this.findFace.bind(this);
@@ -40,7 +41,8 @@ class App extends React.Component {
     let result = {
       imgUrl: e.target.value,
       regions: [],
-      boxPositions: []
+      boxPositions: [],
+      error: null
     };
 
     this.setState(result);
@@ -63,11 +65,20 @@ class App extends React.Component {
       },
       body: JSON.stringify(body)
     };
+
     fetch(`${this.state.url}/image`, options)
       .then(res => res.json())
       // setState() with results
-      .then(json => this.setState(json))
-      .catch(err => { throw err; });
+      .then(json => {
+        if (json.name === 'Error') { // TODO: handle this better ...
+          this.setState({ error: json });
+        } else {
+          this.setState(json);
+        }
+      })
+      .catch(error => {
+        this.setState(error)
+      });
   }
 
   findFace(e) {
@@ -94,6 +105,9 @@ class App extends React.Component {
           <input id="image-url" type="url" pattern="https://.*|http://.*" required onChange={this.updateImgUrl} value={this.state.imgUrl} placeholder="URL to an image" ref={this.urlInputField}></input>
           <button type="submit" onClick={this.findFace}>Find the face(s)</button>
         </form>
+        <div className="error-message-container">
+          {this.state.error ? <p>There was an error. Please try a different image url.</p> : null}
+        </div>
         <div id="active-image-container">
           {this.state.hasNoFace ? <div className="no-face-message">No Face Detected!</div> : null}
           {this.state.imgUrl ? <img id="active-image" src={this.state.imgUrl}></img> : null}
