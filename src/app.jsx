@@ -12,10 +12,12 @@ class App extends React.Component {
       imgUrl: '',
       imgWidth: 0,
       imgHeight: 0,
+      needToResetRandomImg: false,
       hasNoFace: false,
       visibility: 'hidden',
       url: `https://face-detect-api-bellcd.herokuapp.com`,
-      error: null
+      error: null,
+      useMan: true
     }
 
     this.findFace = this.findFace.bind(this);
@@ -45,7 +47,8 @@ class App extends React.Component {
       regions: [],
       boxPositions: [],
       error: null,
-      visibility: 'hidden'
+      visibility: 'hidden',
+      needToResetRandomImg: false
     };
 
     this.setState(result);
@@ -58,11 +61,12 @@ class App extends React.Component {
       regions: [],
       boxPositions: [],
       error: null,
-      visibility: 'hidden'
+      visibility: 'hidden',
+      needToResetRandomImg: false
     };
 
     if (e.target.checked) {
-      result = Object.assign({}, result, { imgUrl: 'https://source.unsplash.com/random?face' });
+      result = Object.assign({}, result, { imgUrl: `https://source.unsplash.com/random?face,${this.pickSearchTerm(this.state.useMan)}` });
     } else {
       result = Object.assign({}, result, { imgUrl: '' });
     }
@@ -95,7 +99,7 @@ class App extends React.Component {
         if (json.name === 'Error') { // TODO: handle this better ...
           this.setState({ error: json });
         } else {
-          const result = Object.assign({}, json, { visibility: 'visible' });
+          const result = Object.assign({}, json, { visibility: 'visible', needToResetRandomImg: true });
           this.setState(result);
         }
       })
@@ -105,14 +109,31 @@ class App extends React.Component {
   }
 
   findFace(e) {
-    e.preventDefault();
+    e ? e.preventDefault() : null;
     this.validateInputField();
     if (this.urlInputField.current.reportValidity()) {
-      this.postFaceUrl();
+      if (this.state.needToResetRandomImg) {
+        this.setState((state, props) => {
+          return {
+            imgUrl: `https://source.unsplash.com/random?face,${this.pickSearchTerm(this.state.useMan)}`, // TODO: does this cause the <img> element to get rerendered ?? (ie, new network request?) might have to extract the image into a separate component to pass in the url as props??
+            needToResetRandomImg: false,
+            useMan: !state.useMan
+          };
+        });
+      } else {
+        this.postFaceUrl();
+      }
     }
   }
 
+  pickSearchTerm(useMan) {
+    return useMan ? 'man' : 'woman';
+  }
+
   render() {
+    // TODO: this seems like a not scalable way of handling multiple sequential button clicks on the Find the Faces(s) button ...
+    this.state.needToResetRandomImg ? this.findFace() : null;
+
     // TODO: separate component ??
     const boundingBoxes = this.state.boxPositions.map((p, i) => { // TODO: change this index to use an identifier from the Clarifai api call??
       return <div key={i} className="bounding-box"
