@@ -1,4 +1,5 @@
 import React from 'react';
+import utils from './utils.js';
 
 class App extends React.Component {
   constructor(props) {
@@ -9,10 +10,10 @@ class App extends React.Component {
     this.state = {
       regions: [],
       boxPositions: [],
+      showBoxes: true,
       imgUrl: '',
       imgWidth: 0,
       imgHeight: 0,
-      needToResetRandomImg: false,
       hasNoFace: false,
       visibility: 'hidden',
       url: `https://face-detect-api-bellcd.herokuapp.com`,
@@ -48,7 +49,6 @@ class App extends React.Component {
       boxPositions: [],
       error: null,
       visibility: 'hidden',
-      needToResetRandomImg: false
     };
 
     this.setState(result);
@@ -63,7 +63,6 @@ class App extends React.Component {
       boxPositions: [],
       error: null,
       visibility: 'hidden',
-      needToResetRandomImg: false
     };
 
     // TODO: need to add error handling ...
@@ -81,69 +80,87 @@ class App extends React.Component {
   // TODO: needs testing
   // TODO: change to async / await instead of callbacks??
   getRandomImageUrl(cb) {
-    // get the actual url of a random image
     fetch(`https://source.unsplash.com/random?face,${this.pickSearchTerm(this.state.useMan)}`)
       .then(res => {
-        // strip off all extra query parameters from that url
         cb(null, res.url.slice(0, res.url.indexOf('?')));
       })
       .catch(error => cb(error, null));
   }
 
-  // TODO: change this to use async / await ... need to handle regeneratorRuntime is not defined error
-  postFaceUrl() {
-    this.getRandomImageUrl();
-
-    // JSON object with imgUrl, imgWidth, imgHeight
-    const body = {
-      imgUrl: this.state.imgUrl,
-      imgWidth: document.querySelector('img').clientWidth, // TODO: better way to handle getting these values ...
-      imgHeight: document.querySelector('img').clientHeight
-    };
-
-    // api call to backend
-    const options = {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    };
-
-    fetch(`${this.state.url}/image`, options)
-      .then(res => res.json())
-      // setState() with results
-      .then(json => {
-        if (json.name === 'Error') { // TODO: handle this better ...
-          this.setState({ error: json });
-        } else {
-          this.setState((state, props => {
-            return Object.assign({}, json, { visibility: 'visible', needToResetRandomImg: true, useMan: !state.useMan });
-          }));
-        }
-      })
-      .catch(error => {
-        this.setState(error)
+  componentDidUpdate() {
+    if (!this.state.showBoxes) {
+      // calculate the width and height from the img in the DOM, then call setState to update those boxPositions
+      let boxPositions = this.state.regions.map(region => {
+        return utils.calculateBox(region.region_info.bounding_box, document.querySelector('img').clientWidth, document.querySelector('img').clientHeight);
       });
+      // also update showBoxes to true
+      this.setState({ boxPositions, showBoxes: true });
+    }
   }
 
+  // when this.state.regions is NOT an empty array
+    // display: none; the Find the Face button
+    // display the Find again button
+    // on find again button click
+      // invoke getRandomImageUrl
+      // call the face detect api with that random url
+        // TODO: how to get the image rendered, so I can calculate the proper width and height, so I can set boxPositions, and render the boxes in the appropriate places??
+          // set a flag to hide the rendered boxes - at the initial (incorrect) image size
+          // then, when the width and height have been calculated and set from the displayed image, change that flag so that the recalculated (now correct) boxes display ??
+
+  // TODO: change this to use async / await ... need to handle regeneratorRuntime is not defined error
+  postFaceUrl() {
+    const doStuff = (error, imgUrl, showBoxes) => {
+      // JSON object with imgUrl, imgWidth, imgHeight
+      const body = {
+        imgUrl,
+        imgWidth: document.querySelector('img').clientWidth, // TODO: better way to handle getting these values ...
+        imgHeight: document.querySelector('img').clientHeight
+      };
+
+      // api call to backend
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      };
+
+      fetch(`${this.state.url}/image`, options)
+        .then(res => res.json())
+        // setState() with results
+        .then(json => {
+          if (json.name === 'Error') { // TODO: handle this better ...
+            this.setState({ error: json });
+          } else {
+            this.setState((state, props) => {
+              return Object.assign({}, json, { visibility: 'visible', useMan: !state.useMan, showBoxes: false, imgUrl });
+            });
+          }
+        })
+        .catch(error => {
+          this.setState(error)
+        });
+    }
+
+    if (this.state.regions.length !== 0) {
+      // there is already a face displayed on the page with boxes around it, so we need to get a NEW image url, and set that in state
+      this.getRandomImageUrl(doStuff);
+    } else {
+      // no face image is displayed
+      doStuff(null, this.state.imgUrl, this.state.showBoxes)
+    }
+  }
+
+  // TODO: figure out how to handle the below situation
+    // when findFace() is triggered
   findFace(e) {
     e ? e.preventDefault() : null;
     this.validateInputField();
     if (this.urlInputField.current.reportValidity()) {
 
-
-      if (this.state.needToResetRandomImg) {
-        this.setState((state, props) => {
-          return {
-            imgUrl: `https://source.unsplash.com/random?face,${this.pickSearchTerm(this.state.useMan)}`, // TODO: does this cause the <img> element to get rerendered ?? (ie, new network request?) might have to extract the image into a separate component to pass in the url as props??
-            needToResetRandomImg: false,
-            useMan: !state.useMan
-          };
-        });
-      } else {
-        this.postFaceUrl();
-      }
+    this.postFaceUrl();
     }
   }
 
@@ -152,9 +169,6 @@ class App extends React.Component {
   }
 
   render() {
-    // TODO: this seems like a not scalable way of handling multiple sequential button clicks on the Find the Faces(s) button ...
-    // this.state.needToResetRandomImg ? this.findFace() : null;
-
     // TODO: separate component ??
     const boundingBoxes = this.state.boxPositions.map((p, i) => { // TODO: change this index to use an identifier from the Clarifai api call??
       return <div key={i} className="bounding-box"
@@ -181,7 +195,7 @@ class App extends React.Component {
           {this.state.hasNoFace ? <div className="no-face-message">No Face Detected!</div> : null}
           {this.state.imgUrl ? <img id="image" style={{ visibility: this.state.visibility }} src={this.state.imgUrl}></img> : null}
           <div className="bounding-boxes">
-            {boundingBoxes}
+            {this.state.showBoxes ? boundingBoxes : null}
           </div>
         </div>
       </section>
