@@ -63,6 +63,8 @@ class App extends React.Component {
 
     if (e.target.checked) {
       result = Object.assign({}, result, { imgUrl: 'https://source.unsplash.com/random?face' });
+    } else {
+      result = Object.assign({}, result, { imgUrl: '' });
     }
 
     this.setState(result);
