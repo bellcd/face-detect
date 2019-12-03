@@ -55,6 +55,7 @@ class App extends React.Component {
   }
 
   updateUseRandomFace(e) {
+    const isChecked = e.target.checked;
     // TODO: a bit WET, combine with the function above ??
     let result = {
       useRandomFace: e.target.checked,
@@ -65,17 +66,34 @@ class App extends React.Component {
       needToResetRandomImg: false
     };
 
-    if (e.target.checked) {
-      result = Object.assign({}, result, { imgUrl: `https://source.unsplash.com/random?face,${this.pickSearchTerm(this.state.useMan)}` });
-    } else {
-      result = Object.assign({}, result, { imgUrl: '' });
-    }
+    // TODO: need to add error handling ...
+    this.getRandomImageUrl((error, imgUrl) => {
+      if (isChecked) {
+        result = Object.assign({}, result, { imgUrl });
+      } else {
+        result = Object.assign({}, result, { imgUrl: '' });
+      }
 
-    this.setState(result);
+      this.setState(result);
+    });
+  }
+
+  // TODO: needs testing
+  // TODO: change to async / await instead of callbacks??
+  getRandomImageUrl(cb) {
+    // get the actual url of a random image
+    fetch(`https://source.unsplash.com/random?face,${this.pickSearchTerm(this.state.useMan)}`)
+      .then(res => {
+        // strip off all extra query parameters from that url
+        cb(null, res.url.slice(0, res.url.indexOf('?')));
+      })
+      .catch(error => cb(error, null));
   }
 
   // TODO: change this to use async / await ... need to handle regeneratorRuntime is not defined error
   postFaceUrl() {
+    this.getRandomImageUrl();
+
     // JSON object with imgUrl, imgWidth, imgHeight
     const body = {
       imgUrl: this.state.imgUrl,
@@ -99,8 +117,9 @@ class App extends React.Component {
         if (json.name === 'Error') { // TODO: handle this better ...
           this.setState({ error: json });
         } else {
-          const result = Object.assign({}, json, { visibility: 'visible', needToResetRandomImg: true });
-          this.setState(result);
+          this.setState((state, props => {
+            return Object.assign({}, json, { visibility: 'visible', needToResetRandomImg: true, useMan: !state.useMan });
+          }));
         }
       })
       .catch(error => {
@@ -112,6 +131,8 @@ class App extends React.Component {
     e ? e.preventDefault() : null;
     this.validateInputField();
     if (this.urlInputField.current.reportValidity()) {
+
+
       if (this.state.needToResetRandomImg) {
         this.setState((state, props) => {
           return {
@@ -132,7 +153,7 @@ class App extends React.Component {
 
   render() {
     // TODO: this seems like a not scalable way of handling multiple sequential button clicks on the Find the Faces(s) button ...
-    this.state.needToResetRandomImg ? this.findFace() : null;
+    // this.state.needToResetRandomImg ? this.findFace() : null;
 
     // TODO: separate component ??
     const boundingBoxes = this.state.boxPositions.map((p, i) => { // TODO: change this index to use an identifier from the Clarifai api call??
