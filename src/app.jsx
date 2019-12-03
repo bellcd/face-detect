@@ -89,12 +89,14 @@ class App extends React.Component {
 
   componentDidUpdate() {
     if (!this.state.showBoxes) {
-      // calculate the width and height from the img in the DOM, then call setState to update those boxPositions
+      const imgWidth = document.querySelector('img').clientWidth;
+      const imgHeight = document.querySelector('img').clientHeight;
+      // calculate the imgWidth and imgHeight from the img in the DOM, then call setState to update those boxPositions
       let boxPositions = this.state.regions.map(region => {
-        return utils.calculateBox(region.region_info.bounding_box, document.querySelector('img').clientWidth, document.querySelector('img').clientHeight);
+        return utils.calculateBox(region.region_info.bounding_box, imgWidth, imgHeight);
       });
       // also update showBoxes to true
-      this.setState({ boxPositions, showBoxes: true });
+      this.setState({ boxPositions, showBoxes: true, imgWidth, imgHeight });
     }
   }
 
@@ -114,8 +116,10 @@ class App extends React.Component {
       // JSON object with imgUrl, imgWidth, imgHeight
       const body = {
         imgUrl,
-        imgWidth: document.querySelector('img').clientWidth, // TODO: better way to handle getting these values ...
-        imgHeight: document.querySelector('img').clientHeight
+        // imgWidth: document.querySelector('img').clientWidth, // TODO: better way to handle getting these values ...
+        // imgHeight: document.querySelector('img').clientHeight
+        imgWidth: 0,
+        imgHeight: 0
       };
 
       // api call to backend
@@ -159,8 +163,7 @@ class App extends React.Component {
     e ? e.preventDefault() : null;
     this.validateInputField();
     if (this.urlInputField.current.reportValidity()) {
-
-    this.postFaceUrl();
+      this.postFaceUrl();
     }
   }
 
@@ -191,9 +194,11 @@ class App extends React.Component {
         <div className="error-message-container">
           {this.state.error ? <p>There was an error. Please try a different image url.</p> : null}
         </div>
-        <div id="image-container">
-          {this.state.hasNoFace ? <div className="no-face-message">No Face Detected!</div> : null}
-          {this.state.imgUrl ? <img id="image" style={{ visibility: this.state.visibility }} src={this.state.imgUrl}></img> : null}
+        <div id="media-container">
+          <div id="image-container">
+            {this.state.hasNoFace ? <div className="no-face-message">No Face Detected!</div> : null}
+            {this.state.imgUrl ? <img id="image" style={{ visibility: this.state.visibility }} src={this.state.imgUrl}></img> : null}
+          </div>
           <div className="bounding-boxes">
             {this.state.showBoxes ? boundingBoxes : null}
           </div>
